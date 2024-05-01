@@ -1,38 +1,62 @@
 const mongoose = require("mongoose")
 
 const invoiceSchema = new mongoose.Schema({
-  invoice_number: {
-    type: String,
-    required: [true, "An Invoice number is required"]
-  },
   status: {
     type: String,
     enum: ["DRAFT", "SENT", "PAID", "OVERDUE"],
     default: "DRAFT"
   },
+  createdBy: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+  },
+  addressedTo: {
+    type: Schema.Types.ObjectId,
+    ref: "Client"
+  },
   description: {
     type: String,
-    required: [true, "A brief description is required"]
-  },
-  note: String,
-  createdAt: {
-    type: Date,
-    default: Date.now()
+    required: [true, "A brief description is required"],
+    trim: true
   },
   dueDate: {
     type: Date,
     required: [true, "An invoice must have a due date"]
   },
-  amount: {
-    type: Number,
-    required: [true, "An amount is required"]
+  note: {
+    type: String,
+    trim: true
   },
+  totalAmount: {
+    type: Number,
+    required: [true, "A total is required"]
+  },
+  items: [
+    {
+      description: {
+        type: String,
+        required: true
+      },
+      rate: {
+        type: Number,
+        required: true,
+      },
+      quantity: {
+        type: Number,
+        default: 1
+      }
+    }
+  ],
   tax: {
     type: Number,
-    required: [true, "An invoice must have a tax value"]
+    default: 0
   },
-
-})
+  paymentDetails: {
+    accName: String,
+    accNumber: Number,
+    bankName: String
+  }
+}, { timestamps: true })
 
 //check what does { timestamps: true } do in he documentation
 

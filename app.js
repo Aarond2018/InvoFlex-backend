@@ -8,14 +8,13 @@ if(process.env.NODE_ENV === "development") {
 }
 
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
-app.use((req, res, next) => {
-  console.log("hello from middleware")
-  next()
-})
-
-app.get("/", (req, res) => {
-  res.send("<h1>Hello World!</h1>")
+app.use((err, req, res, next) => {
+  console.error(err.stack)
+  res.status(500).json({
+    message: "Something went wrong!"
+  })
 })
 
 module.exports = app
