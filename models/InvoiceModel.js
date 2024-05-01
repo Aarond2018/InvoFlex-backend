@@ -58,10 +58,5 @@ const invoiceSchema = new mongoose.Schema({
   }
 }, { timestamps: true })
 
-//check what does { timestamps: true } do in he documentation
-
-//relationship
-//user and customer
-
 const Invoice = mongoose.model("Invoice", invoiceSchema)
 module.exports = Invoice
