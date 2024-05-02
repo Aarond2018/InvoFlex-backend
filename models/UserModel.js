@@ -1,4 +1,5 @@
 const mongoose = require("mongoose")
+const bcrypt = require("bcryptjs")
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -12,11 +13,14 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: [true, "A valid email is required"],
-    unique: true
+    unique: true,
+    lowercase: true
   },
   password: {
     type: String,
-    required: [true, "A password is required"]
+    required: [true, "A password is required"],
+    minLength: 8,
+    select: false
   },
   isVerified: {
     type: Boolean,
@@ -24,13 +28,26 @@ const userSchema = new mongoose.Schema({
   },
   address: {
     type: String,
-    required: [true, "An address is required"],
+    // required: [true, "An address is required"],
     trim: true
   },
   logo: String ,
-  clients: [{ type: Schema.Types.ObjectId, ref: "Client"}],
-  invoices: [{ type: Schema.Types.ObjectId, ref: "Invoice" }]
+  clients: [{ type: mongoose.Schema.Types.ObjectId, ref: "Client"}],
+  invoices: [{ type: mongoose.Schema.Types.ObjectId, ref: "Invoice" }]
 }, { timestamps: true })
+
+//mongoose middleware to hash the password before saving a document
+userSchema.pre("save", async function(next) {
+  //skip if the password is not modified, i.e other non password-related operations
+  if(!this.isModified("password")) {
+    return next()
+  }
+
+  //hash the password
+  this.password = await bcrypt.hash(this.password, 12)
+  
+  next()
+})
 
 const User = mongoose.model("User", userSchema)
 module.exports = User

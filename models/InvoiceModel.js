@@ -7,11 +7,11 @@ const invoiceSchema = new mongoose.Schema({
     default: "DRAFT"
   },
   createdBy: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
   addressedTo: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "Client"
   },
   description: {

@@ -1,6 +1,9 @@
 const express = require("express");
 const morgan = require("morgan");
 
+const authRoutes = require("./routes/auth-routes")
+const AppError = require("./util/AppError")
+
 const app = express();
 
 if (process.env.NODE_ENV === "development") {
@@ -9,6 +12,8 @@ if (process.env.NODE_ENV === "development") {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use("/api/v1/auth", authRoutes)
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
@@ -20,7 +25,7 @@ app.use((err, req, res, next) => {
   err.message = err.message || "Something went wrong!";
 
   if (process.env.NODE_ENV === "development") {
-    res.status(statusCode).json({
+    res.status(err.statusCode).json({
       status: err.status,
       message: err.message,
       error: err,
@@ -40,6 +45,8 @@ app.use((err, req, res, next) => {
         400
       );
     }
+    if (error.name && error.name === "JsonWebTokenError") error = new AppError("Invalid token! Please sign in again", 401)
+    if (error.name && error.name === "TokenExpiredError") error = new AppError("Token expired! Please sign in again", 401)
 
     res.status(statusCode).json({
       status: error.status,
