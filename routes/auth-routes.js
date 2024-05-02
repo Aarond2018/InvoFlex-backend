@@ -10,4 +10,8 @@ router.post(
   "/signup", validatorObj.signUpValidation, handleValidation, authControllers.signup
 );
 
+router.post(
+  "/signin", validatorObj.signInValidation, handleValidation, authControllers.signin
+);
+
 module.exports = router;
