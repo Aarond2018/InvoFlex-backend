@@ -27,6 +27,10 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  phone: {
+    type: String,
+    minLength: [11, "Phone number must have at least 11 characters"],
+  },
   address: {
     type: String,
     // required: [true, "An address is required"],

@@ -11,11 +11,30 @@ exports.signUpValidation = [
 exports.signInValidation = [
   check("email", "Email can't be empty").not().isEmpty(),
   check("email", "Provide a valid email").isEmail(),
-  check("password", "Passwprd can't be empty").not().isEmpty(),
+  check("password", "Password can't be empty").not().isEmpty(),
   check("password", "Password should have a minimum of 8 characters").isLength({min: 8})
 ]
 
 exports.forgotPasswordValidation = [
   check("email", "Email can't be empty").not().isEmpty(),
   check("email", "Provide a valid email").isEmail(),
+]
+
+exports.passwordReset = [
+  check("password", "Password can't be empty").not().isEmpty(),
+  check("password", "Password should have a minimum of 8 characters").isLength({min: 8})
+]
+
+exports.passwordUpdate = [
+  check("password", "Password can't be empty").not().isEmpty(),
+  check("password", "Password should have a minimum of 8 characters").isLength({min: 8}),
+  check("newPassword", "New Password can't be empty").not().isEmpty(),
+  check("newPassword", "New Password should have a minimum of 8 characters").isLength({min: 8})
+]
+
+exports.completeUserReg = [
+  check("businessName", "Business name field can not be empty").not().isEmpty(),
+  check("address", "Address field can not be empty").not().isEmpty(),
+  check("phone", "Phone number can't be empty").not().isEmpty(),
+  check("phone", "Phone number should have at least 11 characters").isLength({min: 11}),
 ]

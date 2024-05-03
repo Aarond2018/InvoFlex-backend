@@ -30,7 +30,56 @@ exports.resetPassword = async (req, res, next) => {
 
     res.status(200).json({
       status: "success",
-      message: "Password reset successfully!"
+      message: "Password reset successfully! Sign in."
+    })
+
+  } catch (error) {
+    return next(new AppError(error.message ? error.message : "Internal Server Error!", 500))
+  }
+}
+
+exports.updatePassword = async (req, res, next) => {
+  try {
+    const { password, newPassword } = req.body
+
+    const user = await User.findById({ _id: req.userId }).select("+password")
+
+    //check if the password entered matches what is in the database
+    if(!(await user.comparePassword(password, user.password))) {
+      return next(new AppError("The entered password is wrong", 401))
+    }
+
+    user.password = newPassword
+    await user.save()
+
+    res.status(200).json({
+      status: "success",
+      message: "Password updated successfully!"
+    })
+
+  } catch (error) {
+    return next(new AppError(error.message ? error.message : "Internal Server Error!", 500))
+  }
+}
+
+exports.completeUserReg = async (req, res, next) => {
+  try {
+    const { businessName, address, phone } = req.body
+
+    const updatedUser = await User.findByIdAndUpdate(req.userId, {
+      businessName,
+      address,
+      phone
+    }, {
+      new: true,
+      runValidators: true
+    })
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        user: updatedUser
+      }
     })
 
   } catch (error) {
