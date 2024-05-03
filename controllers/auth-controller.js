@@ -82,7 +82,7 @@ exports.forgotPassword = async (req, res, next) => {
     const resetToken = user.createPasswordResetToken()
     await user.save( {validateBeforeSave: false})
 
-    //generate the  reset URL
+    //generate the  reset URL - backend endpoint, will be changed to the frontend URL later
     const resetLink = `${req.protocol}://${req.get("host")}/api/v1/users/resetPassword/${resetToken}`
     
     //send reset link to the provided email address
@@ -90,7 +90,7 @@ exports.forgotPassword = async (req, res, next) => {
       await sendEmail({
         email: user.email,
         subject: "Reset your Password",
-        message: `Your password reset link: ${resetLink}`
+        message: `Your password reset link:\n ${resetLink}`
       })
       
       res.status(200).json({

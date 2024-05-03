@@ -1,19 +1,19 @@
 const express = require("express");
 
-const authControllers = require("../controllers/auth-controller");
+const authController = require("../controllers/auth-controller");
 const validatorObj = require("../util/validator")
 const handleValidation = require("../middlewares/handleValidation")
 
 const router = express.Router();
 
 router.post(
-  "/signup", validatorObj.signUpValidation, handleValidation, authControllers.signup
+  "/signup", validatorObj.signUpValidation, handleValidation, authController.signup
 );
 
 router.post(
-  "/signin", validatorObj.signInValidation, handleValidation, authControllers.signin
+  "/signin", validatorObj.signInValidation, handleValidation, authController.signin
 );
 
-router.post("/forgot-password", validatorObj.forgotPasswordValidation, handleValidation, authControllers.forgotPassword)
+router.post("/forgot-password", validatorObj.forgotPasswordValidation, handleValidation, authController.forgotPassword)
 
 module.exports = router;
