@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken")
 
 const User = require("../models/UserModel");
 const AppError = require("../util/AppError");
+const sendEmail = require("../util/email")
 
 exports.signup = async (req, res, next) => {
   try {
@@ -64,5 +65,43 @@ exports.signin = async (req, res, next) => {
 
   } catch (error) {
     return next(new AppError(error.message ? error.message : "Signing in failed, Please try again later!", 500))
+  }
+}
+
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email })
+
+    if(!user) {
+      return next(new AppError("Can't find user for the given email", 404))
+    }
+
+    //generate the token
+    const resetToken = user.createPasswordResetToken()
+    await user.save( {validateBeforeSave: false})
+
+    //generate the  reset URL
+    const resetLink = `${req.protocol}://${req.get("host")}/api/v1/users/resetPassword/${resetToken}`
+    
+    //send reset link to the provided email address
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: "Reset your Password",
+        message: `Your password reset link: ${resetLink}`
+      })
+      
+      res.status(200).json({
+        status: "success",
+        message: "Token sent to the given email!"
+      })
+    } catch (error) {
+      return new AppError("Error sending the email, Try again!", 500)
+    }
+
+  } catch (error) {
+    return next(new AppError(error.message ? error.message : "Internal Server Error!", 500))
   }
 }

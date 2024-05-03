@@ -14,3 +14,8 @@ exports.signInValidation = [
   check("password", "Passwprd can't be empty").not().isEmpty(),
   check("password", "Password should have a minimum of 8 characters").isLength({min: 8})
 ]
+
+exports.forgotPasswordValidation = [
+  check("email", "Email can't be empty").not().isEmpty(),
+  check("email", "Provide a valid email").isEmail(),
+]

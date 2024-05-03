@@ -14,4 +14,6 @@ router.post(
   "/signin", validatorObj.signInValidation, handleValidation, authControllers.signin
 );
 
+router.post("/forgot-password", validatorObj.forgotPasswordValidation, handleValidation, authControllers.forgotPassword)
+
 module.exports = router;
