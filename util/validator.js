@@ -38,3 +38,7 @@ exports.completeUserReg = [
   check("phone", "Phone number can't be empty").not().isEmpty(),
   check("phone", "Phone number should have at least 11 characters").isLength({min: 11}),
 ]
+
+exports.verifyOtp = [
+  check("otp", "OTP can not be empty").not().isEmpty(),
+]

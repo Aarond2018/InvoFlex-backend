@@ -3,6 +3,7 @@ const express = require("express");
 const authController = require("../controllers/auth-controller");
 const validatorObj = require("../util/validator")
 const handleValidation = require("../middlewares/handleValidation")
+const AuthCheck = require("../middlewares/AuthCheck")
 
 const router = express.Router();
 
@@ -15,5 +16,8 @@ router.post(
 );
 
 router.post("/forgot-password", validatorObj.forgotPasswordValidation, handleValidation, authController.forgotPassword)
+
+router.get("/sendOtp", AuthCheck, authController.sendOtp)
+router.post("/verifyOtp", AuthCheck, validatorObj.verifyOtp, handleValidation, authController.verifyOtp)
 
 module.exports = router;
