@@ -86,7 +86,3 @@ exports.completeUserReg = async (req, res, next) => {
     return next(new AppError(error.message ? error.message : "Internal Server Error!", 500))
   }
 }
-
-//TO-DO
-//verify email
-//security implementation

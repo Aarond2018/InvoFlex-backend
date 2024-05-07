@@ -42,3 +42,8 @@ exports.completeUserReg = [
 exports.verifyOtp = [
   check("otp", "OTP can not be empty").not().isEmpty(),
 ]
+
+exports.createClient = [
+  check("name", "A Client name is required").not().isEmpty(),
+  check("email", "Enter a valid Client email").isEmail(),
+]
