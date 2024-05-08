@@ -7,6 +7,7 @@ const mongoSanitize = require("express-mongo-sanitize")
 const authRoutes = require("./routes/auth-routes")
 const userRoutes = require("./routes/user-routes")
 const clientRoutes = require("./routes/client-routes")
+const invoiceRoutes = require("./routes/invoice-routes")
 const AppError = require("./util/AppError")
 const GlobalErrorHandler = require("./middlewares/GlobalErrorHandler")
 
@@ -34,6 +35,7 @@ app.use(mongoSanitize())
 app.use("/api/v1/auth", authRoutes)
 app.use("/api/v1/users", userRoutes)
 app.use("/api/v1/clients", clientRoutes)
+app.use("/api/v1/invoices", invoiceRoutes)
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));

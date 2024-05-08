@@ -78,6 +78,7 @@ exports.deleteClient = async (req, res, next) => {
       return next(new AppError("You are not allowed to delete this place", 401))
     }
 
+    //delete the client and also delete its ID on the user model
     const session = await mongoose.startSession()
     session.startTransaction()
     

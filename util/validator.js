@@ -47,3 +47,12 @@ exports.createClient = [
   check("name", "A Client name is required").not().isEmpty(),
   check("email", "Enter a valid Client email").isEmail(),
 ]
+
+exports.createInvoice = [
+  check("addressedTo", "Correspondent cient id is required").not().isEmpty(),
+  check("description", "Provide a brief description").not().isEmpty(),
+  check("dueDate", "A due date is required").not().isEmpty(),
+  // check("dueDate", "Enter a valid date").isDate(),
+  check("totalAmount", "Enter the total amount of the invoice").not().isEmpty(),
+  check("items", "Provide the invoice item").not().isEmpty()
+]
