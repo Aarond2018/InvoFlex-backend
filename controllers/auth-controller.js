@@ -4,7 +4,7 @@ const randomstring = require("randomstring");
 const User = require("../models/UserModel");
 const OTP = require("../models/Otp")
 const AppError = require("../util/AppError");
-const sendEmail = require("../util/email")
+const {sendEmail} = require("../util/email")
 
 exports.signup = async (req, res, next) => {
   try {

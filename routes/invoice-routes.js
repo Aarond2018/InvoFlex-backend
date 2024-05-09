@@ -6,7 +6,8 @@ const {
   getSingleInvoice,
   deleteInvoice,
   updateInvoice,
-  changeStatus
+  changeStatus,
+  sendInvoice
 } = require("../controllers/invoice-controller");
 const AuthCheck = require("../middlewares/AuthCheck");
 const validatorObj = require("../util/validator");
@@ -25,5 +26,7 @@ router
   .delete(AuthCheck, deleteInvoice)
   .put(AuthCheck, validatorObj.createInvoice, handleValidation, updateInvoice)
   .patch(AuthCheck, validatorObj.changeStatus, handleValidation, changeStatus)
+
+router.route("/:invoiceId/send").post(AuthCheck, sendInvoice)
 
 module.exports = router;

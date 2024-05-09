@@ -1,9 +1,13 @@
+const fs = require("fs")
+
 const mongoose = require("mongoose");
 
 const Invoice = require("../models/InvoiceModel");
 const User = require("../models/UserModel");
 const Client = require("../models/ClientModel")
 const AppError = require("../util/AppError");
+const createInvoicePDF = require("../util/createInvoicePDF")
+const { sendInvoiceMail } = require("../util/email")
 
 exports.getInvoices = async (req, res, next) => {
   try {
@@ -80,12 +84,12 @@ exports.createInvoice = async (req, res, next) => {
 
 exports.getSingleInvoice = async (req, res, next) => {
   try {
-    const invoice = await Invoice.findById(req.params.invoiceId).populate("addressedTo")
+    const invoice = await Invoice.findById(req.params.invoiceId).populate("addressedTo").populate("createdBy")
 
     if(!invoice) {
       return next(new AppError("Can't find invoice with the given id", 404))
     }
-
+    
     res.status(200).json({
       status: "success",
       data: invoice
@@ -213,5 +217,42 @@ exports.changeStatus = async (req, res, next) => {
 
   } catch (error) {
     return next(new AppError("Could not change invoice status", 500))
+  }
+}
+
+exports.sendInvoice = async (req, res, next) =>{
+  try {
+    //extract the invoice with the specified id
+    const invoice = await Invoice.findById(req.params.invoiceId).populate("createdBy").populate("addressedTo")
+
+    if(!invoice) {
+      return next("Could not find an invoice with the provided id", 404)
+    }
+
+    try{
+      await createInvoicePDF(invoice)
+    } catch (error) {
+      return next(new AppError("Error generating invoice", 500))
+    }
+
+    try {
+      await sendInvoiceMail(invoice)
+    } catch (error) {
+      return next(new AppError("Error sending mail", 500))
+    }
+
+    fs.unlink(`${__dirname}/../invoices/${invoice._id}.pdf`, (err) => {
+      if (err) {
+        console.error('Error deleting file:', err);
+        
+      }
+      res.status(200).json({
+        status: "success",
+        message: "Invoice sent!"
+      })
+    })
+
+  } catch (error) {
+    return next(new AppError("Something went wrong", 500))
   }
 }
