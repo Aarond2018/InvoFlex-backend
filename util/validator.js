@@ -56,3 +56,7 @@ exports.createInvoice = [
   check("totalAmount", "Enter the total amount of the invoice").not().isEmpty(),
   check("items", "Provide the invoice item").not().isEmpty()
 ]
+
+exports.changeStatus = [
+  check("status", "A status value is required").not().isEmpty()
+]

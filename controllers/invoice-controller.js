@@ -135,3 +135,83 @@ exports.deleteInvoice = async (req, res, next) => {
     return next(new AppError("Could not delete invoice", 500))
   }
 }
+
+exports.updateInvoice = async (req, res, next) => {
+  //expects the full invoice object just like during invoice creation
+  try {
+    const {
+      addressedTo,
+      description,
+      dueDate,
+      note,
+      totalAmount,
+      items,
+      taxApplied,
+      paymentDetails,
+    } = req.body;
+
+    //extract the invoice with the specified id
+    const invoice = await Invoice.findById(req.params.invoiceId)
+
+    if(!invoice) {
+      return next("Could not find an invoice with the provided id", 404)
+    }
+
+    //return an error if the user trying to update is not the owner of the invoice
+    if(req.userId.toString() !== invoice.createdBy.toString()) {
+      return next("You're not allowed to delete this invoice", 401)
+    }
+
+    invoice.addressedTo = addressedTo
+    invoice.description = description
+    invoice.dueDate = Date.parse(dueDate),
+    invoice.note = note
+    invoice.totalAmount = totalAmount
+    invoice.items = items
+    invoice.taxApplied = taxApplied
+    invoice.paymentDetails = paymentDetails
+    
+    await invoice.save({
+      runValidators: true
+    })
+
+    res.status(200).json({
+      status: "success",
+      data: invoice
+    })
+
+  } catch (error) {
+    return next(new AppError("Could not update invoice", 500))
+  }
+}
+
+exports.changeStatus = async (req, res, next) => {
+  try {
+    const { status } = req.body
+    
+     //extract the invoice with the specified id
+     const invoice = await Invoice.findById(req.params.invoiceId)
+
+     if(!invoice) {
+       return next("Could not find an invoice with the provided id", 404)
+     }
+
+     //return an error if the user trying to change status is not the owner of the invoice
+    if(req.userId.toString() !== invoice.createdBy.toString()) {
+      return next("You're not allowed to delete this invoice", 401)
+    }
+
+    //change the status and save
+    invoice.status = status.toUpperCase()
+
+    await invoice.save()
+
+    res.status(200).json({
+      status: "success",
+      message: `Invoice status changed to ${status.toUpperCase()} successfully `
+    }) 
+
+  } catch (error) {
+    return next(new AppError("Could not change invoice status", 500))
+  }
+}
