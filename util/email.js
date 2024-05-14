@@ -1,5 +1,5 @@
 const nodemailer = require("nodemailer");
-const formatDate = require("../util/formatDate")
+const formatDate = require("../util/formatDate");
 
 const transporter = nodemailer.createTransport({
   service: "Gmail",
@@ -34,8 +34,8 @@ const sendEmail = async (opts) => {
 };
 
 const sendInvoiceMail = async (invoice) => {
-  const dueDate = formatDate(invoice.dueDate)
-  const formattedAmount = `${invoice.totalAmount.toLocaleString()}.00`
+  const dueDate = formatDate(invoice.dueDate);
+  const formattedAmount = `${invoice.totalAmount.toLocaleString()}.00`;
 
   const mailOptions = {
     from: `"${invoice.createdBy.name}" <aarondamilola1998@gmail.com>`,
