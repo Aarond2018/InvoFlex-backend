@@ -29,5 +29,6 @@ router.patch(
   handleValidation,
   userController.updatePassword
 );
+router.patch("/update-user", AuthCheck, upload.single('logo'), userController.updateUser)
 
 module.exports = router;
