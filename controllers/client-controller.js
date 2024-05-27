@@ -97,7 +97,7 @@ exports.deleteClient = async (req, res, next) => {
   }
 }
 
-exports.updateClient= async (req, res, next) => {
+exports.updateClient = async (req, res, next) => {
   try {
     const { name, email, address } = req.body
 

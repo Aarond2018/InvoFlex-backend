@@ -9,6 +9,7 @@ const userRoutes = require("./routes/user-routes")
 const clientRoutes = require("./routes/client-routes")
 const invoiceRoutes = require("./routes/invoice-routes")
 const reportsRoutes = require("./routes/report-routes")
+const dashboardRoute = require("./routes/dashboard-route")
 const AppError = require("./util/AppError")
 const GlobalErrorHandler = require("./middlewares/GlobalErrorHandler")
 
@@ -38,6 +39,7 @@ app.use("/api/v1/users", userRoutes)
 app.use("/api/v1/clients", clientRoutes)
 app.use("/api/v1/invoices", invoiceRoutes)
 app.use("/api/v1/reports", reportsRoutes)
+app.use("/api/v1/dashboard", dashboardRoute)
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
