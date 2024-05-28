@@ -19,6 +19,18 @@ exports.dashboardOverview = async (req, res, next) => {
         },
       ]);  
 
+      //Aggregation pipeline
+      const invoicesAgg = await Invoice.aggregate([
+        { $match: { createdBy: new mongoose.Types.ObjectId(req.userId) }},
+        {
+          $group: {
+            _id: "$status",
+            count: { $sum: 1 },
+            total: { $sum: "$totalAmount" }
+          }
+        }
+      ]) 
+
     // Fetch total number of clients for the user
     const totalClients = await Client.countDocuments({ user: req.userId });
 
@@ -32,6 +44,7 @@ exports.dashboardOverview = async (req, res, next) => {
       totalInvoices,
       totalAmount: totalAmountResult[0]?.total || 0,
       totalClients,
+      invoicesAgg,
       recentInvoices,
     };
 
