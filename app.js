@@ -3,6 +3,7 @@ const morgan = require("morgan");
 const helmet = require("helmet")
 const rateLimit = require("express-rate-limit")
 const mongoSanitize = require("express-mongo-sanitize")
+const cors = require("cors")
 
 const authRoutes = require("./routes/auth-routes")
 const userRoutes = require("./routes/user-routes")
@@ -26,6 +27,8 @@ const limiter = rateLimit({
 	limit: 100,
   message: "Too many requests from this IP, please try again in an hour"
 })
+
+app.use(cors())
 
 app.use("/api", limiter)
 
