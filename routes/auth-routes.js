@@ -17,7 +17,7 @@ router.post(
 
 router.post("/forgot-password", validatorObj.forgotPasswordValidation, handleValidation, authController.forgotPassword)
 
-router.get("/sendOtp", AuthCheck, authController.sendOtp)
+router.post("/sendOtp", AuthCheck, authController.sendOtp)
 router.post("/verifyOtp", AuthCheck, validatorObj.verifyOtp, handleValidation, authController.verifyOtp)
 
 module.exports = router;

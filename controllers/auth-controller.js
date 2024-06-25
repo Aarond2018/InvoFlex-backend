@@ -59,7 +59,13 @@ exports.signup = async (req, res, next) => {
     res.status(201).json({
       status: "success",
       token,
-      data: newUser
+      data: {
+        name: newUser.name,
+        businessName: newUser.businessName,
+        email: newUser.email,
+        id: newUser._id,
+        isVerified: newUser.isVerified,
+      }
     })
 
   } catch (error) {
@@ -86,7 +92,12 @@ exports.signin = async (req, res, next) => {
 
     res.status(200).json({
       status: "success",
-      token
+      token,
+      data: {
+        email: user.email,
+        id: user._id,
+        isVerified: user.isVerified
+      }
     })
 
   } catch (error) {
@@ -184,10 +195,13 @@ exports.verifyOtp = async (req, res, next) => {
 
     const otpObject = await OTP.findOne({ email: user.email })
 
-    if((otpObject.code !== otpCode) || (Date.now() > otpObject.expires) ) {
-      //delete OTP
+    if(!otpObject || (otpObject.code !== otpCode)) {
+      return next(new AppError("Invalid OTP.", 400))
+    }
+
+    if(Date.now() > otpObject.expires) {
       await OTP.deleteOne({ email: user.email })
-      return next(new AppError("Invalid OTP or OTP is expired! Resend Email.", 400))
+      return next(new AppError("OTP is expired! Click on Resend Email.", 400))
     }
 
     //change the user verification status
@@ -199,7 +213,7 @@ exports.verifyOtp = async (req, res, next) => {
 
     res.status(200).json({
       status: "success",
-      message: "OTP verified successfully!"
+      message: "User verified successfully! Log in."
     })
 
   } catch (error) {
