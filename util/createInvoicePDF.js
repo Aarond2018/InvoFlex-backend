@@ -117,7 +117,7 @@ function generateInvoiceTable(doc, invoice) {
     "",
     "Tax",
     "",
-    formatCurrency(0)
+    `${invoice.taxApplied}%`
   );
 
   const totalPosition = taxAppliedPosition + 25;

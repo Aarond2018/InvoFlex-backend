@@ -72,12 +72,37 @@ exports.createInvoice = async (req, res, next) => {
 
     await session.commitTransaction()
 
+    //if status is sent, send invoice immediately after creating
+    if(status === "SENT") {
+      //had to refetch invoice here, because of the population
+      const invoice = await Invoice.findById(newInvoice._id).populate("createdBy").populate("addressedTo")
+
+      try{
+        await createInvoicePDF(invoice)
+      } catch (error) {
+        return next(new AppError("Error generating invoice", 500))
+      }
+
+      try {
+        await sendInvoiceMail(invoice)
+      } catch (error) {
+        return next(new AppError("Error sending mail", 500))
+      }
+
+      fs.unlink(`${__dirname}/../invoices/${invoice._id}.pdf`, (err) => {
+        if (err) {
+          console.error('Error deleting file:', err);
+        }
+      })
+    }
+
     res.status(201).json({
       status: "success",
       data: newInvoice
     })
 
   } catch (error) {
+    console.log(error)
     return next(new AppError("Error creating invoice!", 500));
   }
 };
