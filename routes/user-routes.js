@@ -8,6 +8,12 @@ const upload = require("../util/multer")
 
 const router = express.Router();
 
+router.get(
+  "/",
+  AuthCheck,
+  userController.getCurrentUser
+);
+
 router.patch(
   "/completeOnboarding",
   AuthCheck,
@@ -16,12 +22,14 @@ router.patch(
   handleValidation,
   userController.completeUserReg
 );
+
 router.patch(
   "/resetPassword/:resetToken",
   validatorObj.passwordReset,
   handleValidation,
   userController.resetPassword
 );
+
 router.patch(
   "/updatePassword",
   AuthCheck,
@@ -29,6 +37,7 @@ router.patch(
   handleValidation,
   userController.updatePassword
 );
+
 router.patch("/update-user", AuthCheck, upload.single('logo'), userController.updateUser)
 
 module.exports = router;

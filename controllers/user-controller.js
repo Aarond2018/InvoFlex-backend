@@ -4,6 +4,30 @@ const AppError = require("../util/AppError");
 const getDataURI = require("../util/getDataURI");
 const cloudinary = require("../util/cloudinary");
 
+exports.getCurrentUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.userId)
+
+    if(!user) {
+      return next(new AppError("No user found", 404))
+    }
+
+    return res.status(200).json({
+      status: "success",
+      message: "User fetched successfully!",
+      data: user
+    })
+
+  } catch(error) {
+    return next(
+      new AppError(
+        error.message ? error.message : "Internal Server Error!",
+        500
+      )
+    );
+  } 
+}
+
 exports.resetPassword = async (req, res, next) => {
   try {
     const resetToken = req.params.resetToken;
