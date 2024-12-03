@@ -163,6 +163,7 @@ exports.updateUser = async (req, res, next) => {
     //upload logo to Cloudinary
     try {
       if (req.file) {
+        console.log("eee", req.file)
         const logoURI = getDataURI(req.file);
         const cloudinaryRes = await cloudinary.uploader.upload(logoURI, {
           folder: "invoflex",
@@ -179,7 +180,10 @@ exports.updateUser = async (req, res, next) => {
     user.businessName = businessName
     user.address = address
     user.phone = phone
-    user.logo = cloudinaryUrl || null
+
+    if(cloudinaryUrl) {
+      user.logo = cloudinaryUrl
+    }
     
     await user.save()
 
