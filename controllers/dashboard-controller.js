@@ -31,8 +31,9 @@ exports.dashboardOverview = async (req, res, next) => {
         }
       ]) 
 
-    // Fetch total number of clients for the user
-    const totalClients = await Client.countDocuments({ user: req.userId });
+    // Fetch clients attached to the user
+    // const totalClients = await Client.countDocuments({ user: req.userId });
+    const totalClients = await Client.find({ user: req.userId });
 
     // Fetch recent invoices for the user (example: last 5 invoices)
     const recentInvoices = await Invoice.find({ createdBy: req.userId })
@@ -43,7 +44,8 @@ exports.dashboardOverview = async (req, res, next) => {
     const dashboardData = {
       totalInvoices,
       totalAmount: totalAmountResult[0]?.total || 0,
-      totalClients,
+      totalClients: totalClients.length,
+      clients: totalClients,
       invoicesAgg,
       recentInvoices,
     };
