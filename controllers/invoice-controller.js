@@ -227,7 +227,7 @@ exports.changeStatus = async (req, res, next) => {
 
      //return an error if the user trying to change status is not the owner of the invoice
     if(req.userId.toString() !== invoice.createdBy.toString()) {
-      return next("You're not allowed to delete this invoice", 401)
+      return next("You're not allowed to update this invoice", 401)
     }
 
     //change the status and save
