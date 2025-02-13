@@ -50,7 +50,12 @@ const sendInvoiceMail = async (invoice) => {
     ],
   };
 
-  await transporter.sendMail(mailOptions);
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch(error) {
+    console.log(error)
+  }
+
 };
 
 module.exports = { sendEmail, sendInvoiceMail };

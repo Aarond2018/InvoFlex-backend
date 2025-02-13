@@ -9,6 +9,8 @@ const AppError = require("../util/AppError");
 const createInvoicePDF = require("../util/createInvoicePDF")
 const { sendInvoiceMail } = require("../util/email")
 
+const fsPromises = fs.promises;
+
 exports.getInvoices = async (req, res, next) => {
   try {
     //get all invoices for the logged in user
@@ -38,16 +40,19 @@ exports.createInvoice = async (req, res, next) => {
       paymentDetails,
     } = req.body;
 
-    const client = await Client.findById(addressedTo)
-
-    if(!client) {
-      return next(new AppError("The addressed client can't be found, Create one!", 404))
+    // Ensure addressedTo is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(addressedTo)) {
+      return next(new AppError("Invalid client ID", 400));
     }
 
-    const user = await User.findById(req.userId)
+    const client = await Client.findById(addressedTo);
+    if (!client) {
+      return next(new AppError("The addressed client can't be found, Create one!", 404));
+    }
 
-    if(!user) {
-      return next(new AppError("Could not find the corresponding user", 404))
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return next(new AppError("Could not find the corresponding user", 404));
     }
 
     const newInvoice = new Invoice({
@@ -60,49 +65,57 @@ exports.createInvoice = async (req, res, next) => {
       totalAmount,
       items,
       taxApplied,
-      paymentDetails
-    })
+      paymentDetails,
+    });
 
-    const session = await mongoose.startSession()
-    session.startTransaction()
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-    await newInvoice.save({ session: session })
-    user.invoices.push(newInvoice._id)
-    await user.save({ session: session })
+    try {
+      await newInvoice.save({ session });
+      user.invoices.push(newInvoice._id);
+      await user.save({ session });
 
-    await session.commitTransaction()
+      await session.commitTransaction();
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      return next(new AppError("Error saving invoice!", 500));
+    } finally {
+      session.endSession(); // Always close session
+    }
 
-    //if status is sent, send invoice immediately after creating
-    if(status === "SENT") {
-      //had to refetch invoice here, because of the population
-      const invoice = await Invoice.findById(newInvoice._id).populate("createdBy").populate("addressedTo")
+    // If status is SENT, generate and send the invoice
+    if (status === "SENT") {
+      const invoice = await Invoice.findById(newInvoice._id)
+        .populate("createdBy")
+        .populate("addressedTo");
 
-      try{
-        await createInvoicePDF(invoice)
+      try {
+        await createInvoicePDF(invoice);
       } catch (error) {
-        return next(new AppError("Error generating invoice", 500))
+        console.error("Error generating invoice:", error);
       }
 
       try {
-        await sendInvoiceMail(invoice)
+        await sendInvoiceMail(invoice);
       } catch (error) {
-        return next(new AppError("Error sending mail", 500))
+        console.error("Error sending mail:", error);
       }
 
-      fs.unlink(`${__dirname}/../invoices/${invoice._id}.pdf`, (err) => {
-        if (err) {
-          console.error('Error deleting file:', err);
-        }
-      })
+      // Delete the PDF file after sending
+      fs.promises.unlink(`${__dirname}/../invoices/${invoice._id}.pdf`).catch(err => {
+        console.error("Error deleting file:", err);
+      });
     }
 
+    // Always send response
     res.status(201).json({
       status: "success",
-      data: newInvoice
-    })
-
+      data: newInvoice,
+    });
   } catch (error) {
-    console.log(error)
+    console.error("Error creating invoice:", error);
     return next(new AppError("Error creating invoice!", 500));
   }
 };
@@ -245,39 +258,48 @@ exports.changeStatus = async (req, res, next) => {
   }
 }
 
-exports.sendInvoice = async (req, res, next) =>{
+exports.sendInvoice = async (req, res, next) => {
   try {
-    //extract the invoice with the specified id
-    const invoice = await Invoice.findById(req.params.invoiceId).populate("createdBy").populate("addressedTo")
+    // Fetch invoice and populate required fields
+    const invoice = await Invoice.findById(req.params.invoiceId)
+      .populate("createdBy")
+      .populate("addressedTo");
 
-    if(!invoice) {
-      return next("Could not find an invoice with the provided id", 404)
+    if (!invoice) {
+      return next(new AppError("Could not find an invoice with the provided ID", 404));
     }
 
-    try{
-      await createInvoicePDF(invoice)
-    } catch (error) {
-      return next(new AppError("Error generating invoice", 500))
-    }
-
+    // Generate PDF
     try {
-      await sendInvoiceMail(invoice)
+      await createInvoicePDF(invoice);
     } catch (error) {
-      return next(new AppError("Error sending mail", 500))
+      console.error("Error generating invoice:", error);
+      return next(new AppError("Error generating invoice", 500));
     }
 
-    fs.unlink(`${__dirname}/../invoices/${invoice._id}.pdf`, (err) => {
-      if (err) {
-        console.error('Error deleting file:', err);
-        
-      }
-      res.status(200).json({
-        status: "success",
-        message: "Invoice sent!"
-      })
-    })
+    // Send email
+    try {
+      await sendInvoiceMail(invoice);
+      console.log("Email sent successfully!");
+    } catch (error) {
+      console.error("Error sending invoice email:", error);
+      return next(new AppError("Error sending mail", 500));
+    }
+
+    // Delete the generated PDF asynchronously (Doesn't block response)
+    const pdfPath = `${__dirname}/../invoices/${invoice._id}.pdf`;
+    fsPromises.unlink(pdfPath).catch(err => {
+      console.error("Error deleting file:", err);
+    });
+
+    // Send success response
+    res.status(200).json({
+      status: "success",
+      message: "Invoice sent successfully!",
+    });
 
   } catch (error) {
-    return next(new AppError("Something went wrong", 500))
+    console.error("Unexpected error:", error);
+    return next(new AppError("Something went wrong", 500));
   }
-}
+};
