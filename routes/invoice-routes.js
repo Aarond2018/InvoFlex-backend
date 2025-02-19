@@ -28,5 +28,6 @@ router
   .patch(AuthCheck, validatorObj.changeStatus, handleValidation, changeStatus)
 
 router.route("/:invoiceId/send").post(AuthCheck, sendInvoice)
+router.route("/:invoiceId/preview").get(getSingleInvoice)
 
 module.exports = router;

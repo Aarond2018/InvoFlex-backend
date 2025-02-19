@@ -37,11 +37,13 @@ const sendInvoiceMail = async (invoice) => {
   const dueDate = formatDate(invoice.dueDate);
   const formattedAmount = `${invoice.totalAmount.toLocaleString()}.00`;
 
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
   const mailOptions = {
     from: `"${invoice.createdBy.name}" <aarondamilola1998@gmail.com>`,
     to: invoice.addressedTo.email,
     subject: `Invoice from ${invoice.createdBy.name}`,
-    text: `Hi ${invoice.addressedTo.name},\n\nA new invoice has been generated for you by ${invoice.createdBy.name}. Here's a quick summary:\n\nInvoice Details: INV-${invoice._id} - ${invoice.description}\n\nTotal Invoice Amount: \u20A6${formattedAmount}\n\nDue Date: ${dueDate}\n\nYou can view the invoice or download a PDF copy of it from the following link:\n\nhttps://damilola.invoicely.com/invoice/7468cbe575a34bf493c751f19e4e0896\n\nBest regards,\n${invoice.createdBy.name}`,
+    text: `Hi ${invoice.addressedTo.name},\n\nA new invoice has been generated for you by ${invoice.createdBy.name}. Here's a quick summary:\n\nInvoice Details: INV-${invoice._id} - ${invoice.description}\n\nTotal Invoice Amount: \u20A6${formattedAmount}\n\nDue Date: ${dueDate}\n\nYou can view the invoice or download a PDF copy of it from the following link:\n\n${baseUrl}/preview/${invoice._id}\n\nBest regards,\n${invoice.createdBy.name}`,
     attachments: [
       {
         filename: `INV_${invoice._id}.pdf`,
