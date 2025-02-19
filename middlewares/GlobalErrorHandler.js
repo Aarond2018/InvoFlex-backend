@@ -29,7 +29,7 @@ module.exports = (err, req, res, next) => {
     if (error.name && error.name === "JsonWebTokenError") error = new AppError("Invalid token! Please sign in again", 401)
     if (error.name && error.name === "TokenExpiredError") error = new AppError("Token expired! Please sign in again", 401)
 
-    res.status(statusCode).json({
+    res.status(err.statusCode).json({
       status: error.status,
       message: error.message,
     });
