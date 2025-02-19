@@ -25,7 +25,8 @@ if (process.env.NODE_ENV === "development") {
 const limiter = rateLimit({
 	windowMs: 30 * 60 * 1000,
 	limit: 100,
-  message: "Too many requests from this IP, please try again in an hour"
+  message: "Too many requests from this IP, please try again in an hour",
+  xForwardedForHeader: false
 })
 
 app.use(cors())
