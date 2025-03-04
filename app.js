@@ -14,6 +14,10 @@ const dashboardRoute = require("./routes/dashboard-route")
 const AppError = require("./util/AppError")
 const GlobalErrorHandler = require("./middlewares/GlobalErrorHandler")
 
+// Import and run cron job
+const checkOverdueInvoices = require("./util/cronJobs");
+checkOverdueInvoices();
+
 const app = express();
 
 app.use(helmet())
